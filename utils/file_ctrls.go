@@ -6,6 +6,11 @@ import (
 	"path"
 )
 
+const (
+	DIR_PERMISSIONS = 0700
+	CONFIG_EXT      = ".json"
+)
+
 func PathExists(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
@@ -43,4 +48,10 @@ func CreateNewFile(filePath string, fileName string, fileContents string) error 
 	}
 
 	return nil
+}
+
+func CreateDirectory(dirPath string, dirName string) error {
+	err := os.Mkdir(path.Join(dirPath, dirName), DIR_PERMISSIONS)
+
+	return err
 }

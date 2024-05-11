@@ -46,9 +46,32 @@ func main() {
 	//load selected config from the .grunt/configs folder
 	config, err := utils.LoadConfig(configsFolder, configId)
 
+	utils.HandleError(err, true)
+
+	fmt.Printf("config '%s' has been loaded \n", configId)
+
+	//execute config inside current working directory if a path isn't defined
+	var createPath string
+
+	if len(os.Args) >= 3 {
+		createPath = os.Args[2]
+	} else {
+		createPath = workingDir
+	}
+
+	fmt.Printf("starting grunt in '%s' \n", createPath)
+
+	//create specified directories from config
+	err = config.CreateDirectories(createPath)
+
 	utils.HandleError(err, false)
 
-	fmt.Println(workingDir)
+	fmt.Println("directories have been created")
 
-	fmt.Println(config.Id)
+	//create specified files from config
+	err = config.CreateFiles(createPath)
+
+	utils.HandleError(err, false)
+
+	fmt.Println("files have been created")
 }
