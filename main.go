@@ -6,15 +6,18 @@ import (
 	"path"
 
 	"github.com/JGugino/grunt/utils"
+	"github.com/TwiN/go-color"
 )
 
 func main() {
 	if len(os.Args) <= 1 {
-		fmt.Println("Invalid format")
-		fmt.Println("Usage: grunt {configId}")
+		fmt.Println(color.Ize(color.Red, "Invalid usage"))
+		fmt.Println(color.Ize(color.Red, "grunt {configId} {*path}"))
+		fmt.Println(color.InBlackOverRed("NOTE: if the path is not defined, the current working directory is used."))
 		os.Exit(0)
 	}
 
+	//Gets the
 	configId := os.Args[1]
 
 	homeDir, err := os.UserHomeDir()
@@ -25,6 +28,7 @@ func main() {
 
 	utils.HandleError(err, true)
 
+	//program folder paths
 	rootFolder := path.Join(homeDir, ".grunt")
 	configsFolder := path.Join(rootFolder, "configs")
 	logsFolder := path.Join(rootFolder, "logs")
@@ -40,7 +44,7 @@ func main() {
 		os.Mkdir(configsFolder, utils.DIR_PERMISSIONS)
 		os.Mkdir(logsFolder, utils.DIR_PERMISSIONS)
 
-		fmt.Printf("created '.grunt' directory inside your home directory, %s \n", rootFolder)
+		fmt.Printf(color.InCyan("created '.grunt' directory inside your home directory, %s \n"), rootFolder)
 	}
 
 	//load selected config from the .grunt/configs folder
@@ -48,7 +52,7 @@ func main() {
 
 	utils.HandleError(err, true)
 
-	fmt.Printf("config '%s' has been loaded \n", configId)
+	fmt.Printf(color.InBlue("config '%s' has been loaded \n"), configId)
 
 	//execute config inside current working directory if a path isn't defined
 	var createPath string
@@ -59,19 +63,19 @@ func main() {
 		createPath = workingDir
 	}
 
-	fmt.Printf("starting grunt in '%s' \n", createPath)
+	fmt.Printf(color.InBlue("starting grunt in '%s' \n"), createPath)
 
 	//create specified directories from config
 	err = config.CreateDirectories(createPath)
 
 	utils.HandleError(err, false)
 
-	fmt.Println("directories have been created")
+	fmt.Println(color.InGreen("directories have been created"))
 
 	//create specified files from config
 	err = config.CreateFiles(createPath)
 
 	utils.HandleError(err, false)
 
-	fmt.Println("files have been created")
+	fmt.Println(color.InGreen("files have been created"))
 }
