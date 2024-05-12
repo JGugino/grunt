@@ -6,24 +6,25 @@ import (
 	"path"
 
 	"github.com/JGugino/grunt/utils"
-	"github.com/TwiN/go-color"
 )
 
 func main() {
 	if len(os.Args) <= 1 {
-		fmt.Println(color.Ize(color.Red, "Invalid usage"))
-		fmt.Println(color.Ize(color.Red, "grunt {configId} {*path}"))
-		fmt.Println(color.InBlackOverRed("NOTE: if the path is not defined, the current working directory is used."))
+		utils.PrintError("Invalid usage", false)
+		utils.PrintError("grunt {configId} {path*}", false)
+		utils.PrintError("* if the path is not defined, the current working directory is used.", true)
 		os.Exit(0)
 	}
 
-	//Gets the
+	//Gets the config id to load
 	configId := os.Args[1]
 
+	//Determines the users home dir
 	homeDir, err := os.UserHomeDir()
 
 	utils.HandleError(err, true)
 
+	//Determines the users current working directory
 	workingDir, err := os.Getwd()
 
 	utils.HandleError(err, true)
@@ -44,7 +45,7 @@ func main() {
 		os.Mkdir(configsFolder, utils.DIR_PERMISSIONS)
 		os.Mkdir(logsFolder, utils.DIR_PERMISSIONS)
 
-		fmt.Printf(color.InCyan("created '.grunt' directory inside your home directory, %s \n"), rootFolder)
+		utils.PrintInfo(fmt.Sprintf("created '.grunt' directory inside your home directory, %s", rootFolder))
 	}
 
 	//load selected config from the .grunt/configs folder
@@ -52,7 +53,7 @@ func main() {
 
 	utils.HandleError(err, true)
 
-	fmt.Printf(color.InBlue("config '%s' has been loaded \n"), configId)
+	utils.PrintInfo(fmt.Sprintf("config '%s' has been loaded", configId))
 
 	//execute config inside current working directory if a path isn't defined
 	var createPath string
@@ -63,19 +64,37 @@ func main() {
 		createPath = workingDir
 	}
 
-	fmt.Printf(color.InBlue("starting grunt in '%s' \n"), createPath)
+	flags := config.DetermineFlags()
 
-	//create specified directories from config
-	err = config.CreateDirectories(createPath)
+	utils.PrintInfo(fmt.Sprintf("starting grunt in '%s'", createPath))
 
-	utils.HandleError(err, false)
+	if !flags.SkipCreation {
 
-	fmt.Println(color.InGreen("directories have been created"))
+		//Check if there is a flag to skip directory creation
+		if !flags.SkipDirs {
+			//create specified directories from config
+			err = config.CreateDirectories(createPath)
 
-	//create specified files from config
-	err = config.CreateFiles(createPath)
+			utils.HandleError(err, false)
 
-	utils.HandleError(err, false)
+			utils.PrintAction("directories have been created")
+		} else {
+			utils.PrintInfo("## Skipping directory creation ##")
+		}
 
-	fmt.Println(color.InGreen("files have been created"))
+		//Check if there is a flag to skip file creation
+		if !flags.SkipFiles {
+			//create specified files from config
+			err = config.CreateFiles(createPath)
+
+			utils.HandleError(err, false)
+
+			utils.PrintAction("files have been created")
+		} else {
+			utils.PrintInfo("## Skipping file creation ##")
+		}
+	} else {
+		utils.PrintInfo("## Skipping directory & file creation ##")
+	}
+
 }

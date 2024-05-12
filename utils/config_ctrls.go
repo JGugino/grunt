@@ -5,8 +5,16 @@ import (
 	"path"
 )
 
+const (
+	SKIP_FILES    string = "skipFiles"
+	SKIP_DIRS     string = "skipDirs"
+	SKIP_CREATION string = "skipCreation"
+	SKIP_COMMANDS string = "skipCommands"
+)
+
 type ConfigFile struct {
 	Id          string      `json:"id"`
+	Flags       []string    `json:"flags"`
 	Directories []Directory `json:"directories"`
 	Commands    []Command   `json:"commands"`
 }
@@ -32,6 +40,13 @@ type Command struct {
 	Args    []string `json:"args"`
 }
 
+type ActiveFlags struct {
+	SkipFiles    bool
+	SkipDirs     bool
+	SkipCreation bool
+	SkipCommands bool
+}
+
 func LoadConfig(path string, configId string) (*ConfigFile, error) {
 	configContents, err := ReadWholeFile(path, AddConfigExt(configId))
 
@@ -44,6 +59,15 @@ func LoadConfig(path string, configId string) (*ConfigFile, error) {
 	err = json.Unmarshal(configContents, &configFile)
 
 	return configFile, err
+}
+
+func (config *ConfigFile) DetermineFlags() ActiveFlags {
+	return ActiveFlags{
+		SkipFiles:    StringExistsInSlice(config.Flags, SKIP_FILES),
+		SkipDirs:     StringExistsInSlice(config.Flags, SKIP_DIRS),
+		SkipCreation: StringExistsInSlice(config.Flags, SKIP_CREATION),
+		SkipCommands: StringExistsInSlice(config.Flags, SKIP_COMMANDS),
+	}
 }
 
 func (config *ConfigFile) CreateDirectories(createPath string) error {
