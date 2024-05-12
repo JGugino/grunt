@@ -2,6 +2,9 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
+	"os/exec"
 	"path"
 )
 
@@ -122,6 +125,23 @@ func (config *ConfigFile) CreateFiles(createPath string) error {
 				}
 			}
 		}
+	}
+	return nil
+}
+
+func (config *ConfigFile) ExecuteCommands(executePath string) error {
+	for c := 0; c < len(config.Commands); c++ {
+		command := config.Commands[c]
+
+		os.Chdir(executePath)
+		cmd := exec.Command(command.Command, command.Args...)
+		err := cmd.Run()
+
+		if err != nil {
+			return err
+		}
+
+		PrintAction(fmt.Sprintf("Command '%s' has been executed", command.Command))
 	}
 	return nil
 }

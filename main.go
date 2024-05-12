@@ -12,7 +12,7 @@ func main() {
 	if len(os.Args) <= 1 {
 		utils.PrintError("Invalid usage", false)
 		utils.PrintError("grunt {configId} {path*}", false)
-		utils.PrintError("* if the path is not defined, the current working directory is used.", true)
+		utils.PrintError("* If the path is not defined, the current working directory is used.", true)
 		os.Exit(0)
 	}
 
@@ -45,7 +45,7 @@ func main() {
 		os.Mkdir(configsFolder, utils.DIR_PERMISSIONS)
 		os.Mkdir(logsFolder, utils.DIR_PERMISSIONS)
 
-		utils.PrintInfo(fmt.Sprintf("created '.grunt' directory inside your home directory, %s", rootFolder))
+		utils.PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder))
 	}
 
 	//load selected config from the .grunt/configs folder
@@ -53,7 +53,7 @@ func main() {
 
 	utils.HandleError(err, true)
 
-	utils.PrintInfo(fmt.Sprintf("config '%s' has been loaded", configId))
+	utils.PrintInfo(fmt.Sprintf("Config '%s' has been loaded", configId))
 
 	//execute config inside current working directory if a path isn't defined
 	var createPath string
@@ -66,7 +66,7 @@ func main() {
 
 	flags := config.DetermineFlags()
 
-	utils.PrintInfo(fmt.Sprintf("starting grunt in '%s'", createPath))
+	utils.PrintInfo(fmt.Sprintf("Starting grunt in '%s'", createPath))
 
 	if !flags.SkipCreation {
 
@@ -77,7 +77,7 @@ func main() {
 
 			utils.HandleError(err, false)
 
-			utils.PrintAction("directories have been created")
+			utils.PrintAction("Directories have been created")
 		} else {
 			utils.PrintInfo("## Skipping directory creation ##")
 		}
@@ -89,12 +89,22 @@ func main() {
 
 			utils.HandleError(err, false)
 
-			utils.PrintAction("files have been created")
+			utils.PrintAction("Files have been created")
 		} else {
 			utils.PrintInfo("## Skipping file creation ##")
 		}
 	} else {
 		utils.PrintInfo("## Skipping directory & file creation ##")
+	}
+
+	if !flags.SkipCommands {
+		err = config.ExecuteCommands(createPath)
+
+		utils.HandleError(err, false)
+
+		utils.PrintAction("Commands have been executed")
+	} else {
+		utils.PrintInfo("## Skipping command execution ##")
 	}
 
 }
