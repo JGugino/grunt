@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 )
 
 const (
@@ -54,4 +55,39 @@ func CreateDirectory(dirPath string, dirName string) error {
 	err := os.Mkdir(path.Join(dirPath, dirName), DIR_PERMISSIONS)
 
 	return err
+}
+
+func AppendToLogFile(logType string, logContent string) error {
+	homeDir, err := os.UserHomeDir()
+
+	if err != nil {
+		return err
+	}
+
+	errorLogPath := path.Join(homeDir, ".grunt", "logs", "errors.log")
+	generalLogPath := path.Join(homeDir, ".grunt", "logs", "general.log")
+
+	var selectedLogPath string
+
+	if logType == "error" {
+		selectedLogPath = errorLogPath
+	} else if logType == "general" {
+		selectedLogPath = generalLogPath
+	}
+
+	log, err := os.OpenFile(selectedLogPath,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+
+	defer log.Close()
+
+	timestampedContent := time.Now().Format("Mon Jan _2 15:04:05 2006") + " - " + logContent + "\n"
+
+	if _, err := log.WriteString(timestampedContent); err != nil {
+		return err
+	}
+
+	return nil
 }

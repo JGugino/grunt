@@ -97,12 +97,13 @@ func main() {
 		utils.PrintInfo("## Skipping directory & file creation ##")
 	}
 
+	//Checks if there is a flag to skip command execution
 	if !flags.SkipCommands {
 		err = config.ExecuteCommands(createPath)
 
 		utils.HandleError(err, false)
 
-		utils.PrintAction("Commands have been executed")
+		utils.PrintAction("All commands have been executed")
 	} else {
 		utils.PrintInfo("## Skipping command execution ##")
 	}

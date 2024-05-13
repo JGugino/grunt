@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	SKIP_FILES    string = "skipFiles"
-	SKIP_DIRS     string = "skipDirs"
-	SKIP_CREATION string = "skipCreation"
-	SKIP_COMMANDS string = "skipCommands"
+	SKIP_FILES_FLAG    string = "skipFiles"
+	SKIP_DIRS_FLAG     string = "skipDirs"
+	SKIP_CREATION_FLAG string = "skipCreation"
+	SKIP_COMMANDS_FLAG string = "skipCommands"
 )
 
 type ConfigFile struct {
@@ -66,10 +66,10 @@ func LoadConfig(path string, configId string) (*ConfigFile, error) {
 
 func (config *ConfigFile) DetermineFlags() ActiveFlags {
 	return ActiveFlags{
-		SkipFiles:    StringExistsInSlice(config.Flags, SKIP_FILES),
-		SkipDirs:     StringExistsInSlice(config.Flags, SKIP_DIRS),
-		SkipCreation: StringExistsInSlice(config.Flags, SKIP_CREATION),
-		SkipCommands: StringExistsInSlice(config.Flags, SKIP_COMMANDS),
+		SkipFiles:    StringExistsInSlice(config.Flags, SKIP_FILES_FLAG),
+		SkipDirs:     StringExistsInSlice(config.Flags, SKIP_DIRS_FLAG),
+		SkipCreation: StringExistsInSlice(config.Flags, SKIP_CREATION_FLAG),
+		SkipCommands: StringExistsInSlice(config.Flags, SKIP_COMMANDS_FLAG),
 	}
 }
 
@@ -118,7 +118,7 @@ func (config *ConfigFile) CreateFiles(createPath string) error {
 			//Create sub directory files
 			for pf := 0; pf < len(parentDir.Files); pf++ {
 				file := parentDir.Files[pf]
-				err := CreateNewFile(path.Join(path.Join(createPath, parentDir.Name), subDir.Name), file.Name, file.Content)
+				err := CreateNewFile(path.Join(createPath, parentDir.Name, subDir.Name), file.Name, file.Content)
 
 				if err != nil {
 					return err
@@ -141,7 +141,7 @@ func (config *ConfigFile) ExecuteCommands(executePath string) error {
 			return err
 		}
 
-		PrintAction(fmt.Sprintf("Command '%s' has been executed", command.Command))
+		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(command.Args)))
 	}
 	return nil
 }
