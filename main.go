@@ -4,20 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"time"
 
 	"github.com/JGugino/grunt/utils"
 )
 
 func main() {
-	if len(os.Args) <= 1 {
-		utils.PrintError("Invalid usage", false)
-		utils.PrintError("grunt {configId} {args}", false)
-		utils.PrintError("* If the path is not defined, the current working directory is used.", true)
-		os.Exit(0)
-	}
-
-	//Gets the config id to load
-	configId := os.Args[1]
+	startingTime := time.Now()
 
 	//Determines the users home dir
 	homeDir, err := os.UserHomeDir()
@@ -50,7 +43,18 @@ func main() {
 		utils.HandleError(err, false)
 
 		utils.PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder))
+		os.Exit(0)
 	}
+
+	if len(os.Args) <= 1 {
+		utils.PrintError("Invalid usage", false)
+		utils.PrintError("grunt {configId} {args}", false)
+		utils.PrintError("* If the path is not defined, the current working directory is used.", true)
+		os.Exit(0)
+	}
+
+	//Gets the config id to load
+	configId := os.Args[1]
 
 	//load selected config from the .grunt/configs folder
 	config, err := utils.LoadConfig(configsFolder, configId)
@@ -129,4 +133,7 @@ func main() {
 		utils.PrintInfo("## Skipping command execution ##")
 	}
 
+	timeTook := time.Since(startingTime)
+
+	utils.PrintInfo(fmt.Sprintf("Config '%s' execution has completed: %s", configId, timeTook.String()))
 }
