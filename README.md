@@ -39,14 +39,14 @@ To add grunt to your path on linux it's as simple as copying the binary into eit
 sudo cp ~/grunt /usr/locals/bin
 ```
 #### Testing your installation 
-After you've copied grunt to your `bin` folder (or added the application path to your enviroment variables) you can test your installation by run the command `grunt`. If everything is correct this will create the `.grunt` directory inside the users home directory. Along with the `.grunt` directory, the config and logs directories are also created.
+After you've copied grunt to your `bin` folder (or added the application path to your enviroment variables) you can test your installation by run the command `grunt`. If everything is correct this will create the `.grunt` directory inside the users home directory. Along with the `.grunt` directory, the config and logs directories are also created. The configs folder is where grunt will look to try and load a config, and the logs folder is where the errors and general logs get created.
 
 ---
 
 ## Example Project Config
 
 The following example config will create a very basic HTML project with a linked css file. Note this is a very basic example of what could be done using grunt, and is only really meant to give an idea of what grunt is capable of.
-```json
+```javascript
     {
         "id":"example",
         "args":[
@@ -87,7 +87,7 @@ The following example config will create a very basic HTML project with a linked
 ```
 
 ### Flags
-```json
+```javascript
     {
         "flags": [
             "skipCreation", //Skips the entire directory & file creation step
@@ -100,7 +100,7 @@ The following example config will create a very basic HTML project with a linked
 
 ### Arguments
 To use an argument within the config you must first define it with the `"args"` section of the config. This section is any array of string which defines the names of the arguments you wish to use, see the example below.
-```json
+```javascript
     {
         "args":[
             "name",
@@ -109,7 +109,7 @@ To use an argument within the config you must first define it with the `"args"` 
     }
 ```
 After you have defined your arguments inside the config you may use it in other parts of your config, the only place you cannot use arguments is inside the `"id"` of the config. When using an arg within the config surround the argument name with curly braces, see the example below.
-```json
+```javascript
     {
         "commands":[
             {
