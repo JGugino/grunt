@@ -11,7 +11,7 @@ import (
 func main() {
 	if len(os.Args) <= 1 {
 		utils.PrintError("Invalid usage", false)
-		utils.PrintError("grunt {configId} {path*}", false)
+		utils.PrintError("grunt {configId} {args}", false)
 		utils.PrintError("* If the path is not defined, the current working directory is used.", true)
 		os.Exit(0)
 	}
@@ -56,24 +56,37 @@ func main() {
 	utils.PrintInfo(fmt.Sprintf("Config '%s' has been loaded", configId))
 
 	//execute config inside current working directory if a path isn't defined
-	var createPath string
+	createPath, err := utils.GrabArgFromSlice(os.Args, "-p")
 
-	if len(os.Args) >= 3 {
-		createPath = os.Args[2]
-	} else {
-		createPath = workingDir
+	if err != nil {
+		createPath.Value = workingDir
 	}
 
 	flags := config.DetermineFlags()
 
-	utils.PrintInfo(fmt.Sprintf("Starting grunt in '%s'", createPath))
+	var commandArgs []utils.CommandArg
+
+	for _, arg := range config.Args {
+		cmd, err := utils.GrabArgFromSlice(os.Args, arg)
+
+		if err != nil {
+			utils.PrintWarning(fmt.Sprintf("Defined arg '%s' is unused", arg))
+			return
+		}
+
+		commandArgs = append(commandArgs, cmd)
+	}
+
+	fmt.Println(commandArgs)
+
+	utils.PrintInfo(fmt.Sprintf("Starting grunt in '%s'", createPath.Value))
 
 	if !flags.SkipCreation {
 
 		//Check if there is a flag to skip directory creation
 		if !flags.SkipDirs {
 			//create specified directories from config
-			err = config.CreateDirectories(createPath)
+			err = config.CreateDirectories(createPath.Value)
 
 			utils.HandleError(err, false)
 
@@ -85,7 +98,7 @@ func main() {
 		//Check if there is a flag to skip file creation
 		if !flags.SkipFiles {
 			//create specified files from config
-			err = config.CreateFiles(createPath)
+			err = config.CreateFiles(createPath.Value)
 
 			utils.HandleError(err, false)
 
@@ -99,7 +112,7 @@ func main() {
 
 	//Checks if there is a flag to skip command execution
 	if !flags.SkipCommands {
-		err = config.ExecuteCommands(createPath)
+		err = config.ExecuteCommands(createPath.Value)
 
 		utils.HandleError(err, false)
 

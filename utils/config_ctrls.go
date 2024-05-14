@@ -17,6 +17,7 @@ const (
 
 type ConfigFile struct {
 	Id          string      `json:"id"`
+	Args        []string    `json:"args"`
 	Flags       []string    `json:"flags"`
 	Directories []Directory `json:"directories"`
 	Commands    []Command   `json:"commands"`
