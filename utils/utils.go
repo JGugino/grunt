@@ -113,7 +113,7 @@ func PrintError(msg string, urgent bool) {
 	}
 
 	fmt.Println(color.InRed(msg))
-	AppendToLogFile("error", msg)
+	AppendToLogFile("error", " [ERROR] - "+msg)
 }
 func PrintInfo(msg string) {
 	fmt.Println(color.InBlue(msg))
