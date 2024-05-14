@@ -60,6 +60,51 @@ func GrabArgFromSlice(slice []string, arg string) (CommandArg, error) {
 	return CommandArg{}, errors.New("not-found")
 }
 
+func ReplaceArgWithValueInSlice(slice []string, args []CommandArg) []string {
+	replacedSlice := make([]string, 0)
+	for _, s := range slice {
+		for _, a := range args {
+			argStart := strings.Index(s, "{")
+			argEnd := strings.Index(s, "}")
+
+			var extractedArg string
+
+			if argStart != -1 && argEnd != -1 {
+				extractedArg = s[argStart:argEnd] + "}"
+			} else {
+				extractedArg = s
+			}
+
+			if extractedArg == "{"+a.Name+"}" {
+				replacedSlice = append(replacedSlice, s[:argStart]+a.Value+s[argEnd+1:])
+				continue
+			}
+		}
+	}
+	return replacedSlice
+}
+
+func ReplaceArgWithValueInString(arg string, args []CommandArg) string {
+	for _, a := range args {
+		argStart := strings.Index(arg, "{")
+		argEnd := strings.Index(arg, "}")
+
+		var extractedArg string
+
+		if argStart != -1 && argEnd != -1 {
+			extractedArg = arg[argStart:argEnd] + "}"
+		} else {
+			extractedArg = arg
+		}
+
+		if extractedArg == "{"+a.Name+"}" {
+			return arg[:argStart] + a.Value + arg[argEnd+1:]
+		}
+	}
+
+	return arg
+}
+
 func PrintError(msg string, urgent bool) {
 	if urgent {
 		fmt.Println(color.InBlackOverRed(msg))

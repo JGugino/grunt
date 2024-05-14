@@ -74,9 +74,12 @@ func (config *ConfigFile) DetermineFlags() ActiveFlags {
 	}
 }
 
-func (config *ConfigFile) CreateDirectories(createPath string) error {
+func (config *ConfigFile) CreateDirectories(createPath string, definedArgs []CommandArg) error {
 	for p := 0; p < len(config.Directories); p++ {
 		parentDir := config.Directories[p]
+
+		parentDir.Name = ReplaceArgWithValueInString(parentDir.Name, definedArgs)
+
 		//Create parent directory
 		err := CreateDirectory(createPath, parentDir.Name)
 
@@ -87,7 +90,7 @@ func (config *ConfigFile) CreateDirectories(createPath string) error {
 		//Create sub directories
 		for s := 0; s < len(parentDir.SubDirectories); s++ {
 			subDir := parentDir.SubDirectories[s]
-			err := CreateDirectory(path.Join(createPath, parentDir.Name), subDir.Name)
+			err := CreateDirectory(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(subDir.Name, definedArgs))
 
 			if err != nil {
 				return err
@@ -98,14 +101,16 @@ func (config *ConfigFile) CreateDirectories(createPath string) error {
 	return nil
 }
 
-func (config *ConfigFile) CreateFiles(createPath string) error {
+func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandArg) error {
 	for p := 0; p < len(config.Directories); p++ {
 		parentDir := config.Directories[p]
+
+		parentDir.Name = ReplaceArgWithValueInString(parentDir.Name, definedArgs)
 
 		//Create parent directory files
 		for pf := 0; pf < len(parentDir.Files); pf++ {
 			file := parentDir.Files[pf]
-			err := CreateNewFile(path.Join(createPath, parentDir.Name), file.Name, file.Content)
+			err := CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), file.Content)
 
 			if err != nil {
 				return err
@@ -117,9 +122,9 @@ func (config *ConfigFile) CreateFiles(createPath string) error {
 			subDir := parentDir.SubDirectories[s]
 
 			//Create sub directory files
-			for pf := 0; pf < len(parentDir.Files); pf++ {
-				file := parentDir.Files[pf]
-				err := CreateNewFile(path.Join(createPath, parentDir.Name, subDir.Name), file.Name, file.Content)
+			for sf := 0; sf < len(subDir.Files); sf++ {
+				file := subDir.Files[sf]
+				err := CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), file.Content)
 
 				if err != nil {
 					return err
@@ -130,19 +135,23 @@ func (config *ConfigFile) CreateFiles(createPath string) error {
 	return nil
 }
 
-func (config *ConfigFile) ExecuteCommands(executePath string) error {
+func (config *ConfigFile) ExecuteCommands(executePath string, definedArgs []CommandArg) error {
 	for c := 0; c < len(config.Commands); c++ {
 		command := config.Commands[c]
 
+		cmdArgs := ReplaceArgWithValueInSlice(command.Args, definedArgs)
+
 		os.Chdir(executePath)
-		cmd := exec.Command(command.Command, command.Args...)
-		err := cmd.Run()
+		cmd := exec.Command(command.Command, cmdArgs...)
+		output, err := cmd.Output()
 
 		if err != nil {
+			PrintError(fmt.Sprintf("Command '%s %s' has failed to execute", command.Command, TurnSliceIntoString(cmdArgs)), false)
 			return err
 		}
 
-		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(command.Args)))
+		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(cmdArgs)))
+		PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", output))
 	}
 	return nil
 }
