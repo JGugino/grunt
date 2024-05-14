@@ -108,7 +108,7 @@ func ReplaceArgWithValueInString(arg string, args []CommandArg) string {
 func PrintError(msg string, urgent bool) {
 	if urgent {
 		fmt.Println(color.InBlackOverRed(msg))
-		AppendToLogFile("error", msg)
+		AppendToLogFile("error", " [ERROR] - "+msg)
 		return
 	}
 
@@ -117,14 +117,14 @@ func PrintError(msg string, urgent bool) {
 }
 func PrintInfo(msg string) {
 	fmt.Println(color.InBlue(msg))
-	AppendToLogFile("general", msg)
+	AppendToLogFile("general", " [INFO] - "+msg)
 }
 func PrintAction(msg string) {
 	fmt.Println(color.InGreen(msg))
-	AppendToLogFile("general", msg)
+	AppendToLogFile("general", " [ACTION] - "+msg)
 }
 
 func PrintWarning(msg string) {
 	fmt.Println(color.InBlackOverYellow(msg))
-	AppendToLogFile("general", msg)
+	AppendToLogFile("general", " [WARNING] - "+msg)
 }
