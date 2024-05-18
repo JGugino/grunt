@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/TwiN/go-color"
@@ -12,6 +13,11 @@ import (
 type CommandArg struct {
 	Name  string
 	Value string
+}
+
+type CommandReturn struct {
+	Output []byte
+	Err    error
 }
 
 func AddConfigExt(fileName string) string {
@@ -103,6 +109,18 @@ func ExtractPathOrReturnOriginalContent(content string) (hasPath bool, found str
 	fmt.Println(contentPath[1 : len(contentPath)-1])
 
 	return true, contentPath[1 : len(contentPath)-1]
+}
+
+func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
+	cmd := exec.Command(command, args...)
+	output, err := cmd.Output()
+
+	commandReturn := CommandReturn{
+		Output: output,
+		Err:    err,
+	}
+
+	channel <- commandReturn
 }
 
 // Handles errors and has the ability to exit the program if fatal

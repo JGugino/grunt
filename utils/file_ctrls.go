@@ -31,12 +31,13 @@ func ReadWholeFile(filePath string, fileName string) ([]byte, error) {
 	return contents, nil
 }
 
-func CreateNewFile(filePath string, fileName string, fileContents string) error {
+func CreateNewFile(filePath string, fileName string, fileContents string, channel chan error) {
 	file, err := os.Create(path.Join(filePath, fileName))
 
 	if err != nil {
 		fmt.Printf("Unable to create the file %s in path %s", fileName, filePath)
-		return err
+		channel <- err
+		return
 	}
 
 	defer file.Close()
@@ -45,10 +46,11 @@ func CreateNewFile(filePath string, fileName string, fileContents string) error 
 
 	if writeErr != nil {
 		fmt.Printf("Unable to write to the file %s in path %s", fileName, filePath)
-		return writeErr
+		channel <- writeErr
+		return
 	}
 
-	return nil
+	channel <- nil
 }
 
 func CreateDirectory(dirPath string, dirName string) error {

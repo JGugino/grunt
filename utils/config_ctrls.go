@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 )
@@ -147,7 +146,11 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 				return err
 			}
 
-			err = CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
+			channel := make(chan error)
+
+			go CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent, channel)
+
+			err = <-channel
 
 			if err != nil {
 				return err
@@ -170,7 +173,11 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 					return err
 				}
 
-				err = CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
+				channel := make(chan error)
+
+				go CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent, channel)
+
+				err = <-channel
 
 				if err != nil {
 					return err
@@ -182,22 +189,28 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 }
 
 func (config *ConfigFile) ExecuteCommands(executePath string, definedArgs []CommandArg) error {
+	os.Chdir(executePath)
+
 	for c := 0; c < len(config.Commands); c++ {
 		command := config.Commands[c]
 
 		cmdArgs := ReplaceArgWithValueInSlice(command.Args, definedArgs)
 
-		os.Chdir(executePath)
-		cmd := exec.Command(command.Command, cmdArgs...)
-		output, err := cmd.Output()
+		channel := make(chan CommandReturn)
 
-		if err != nil {
+		go ExecuteCommand(channel, command.Command, cmdArgs)
+
+		commandReturn := <-channel
+
+		if commandReturn.Err != nil {
 			PrintError(fmt.Sprintf("Command '%s %s' has failed to execute", command.Command, TurnSliceIntoString(cmdArgs)), false)
-			return err
+			return commandReturn.Err
 		}
 
 		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(cmdArgs)))
-		PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", output))
+		if len(commandReturn.Output) > 0 {
+			PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", commandReturn.Output))
+		}
 	}
 	return nil
 }
