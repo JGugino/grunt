@@ -83,10 +83,6 @@ func DetermineFileContent(config ConfigFile, content string) (string, error) {
 
 		fileContent, err := ReadWholeFile(filePath, fileName)
 
-		fmt.Println("File Path: ", filePath)
-		fmt.Println("File Name: " + fileName)
-		fmt.Println("Content: " + string(fileContent))
-
 		if err != nil {
 			return "", err
 		}
