@@ -35,8 +35,11 @@ func main() {
 
 		utils.HandleError(err, false)
 
-		//create config/logs folders
+		//create config/content/logs folders
 		err = utils.CreateDirectory(rootFolder, "configs")
+		utils.HandleError(err, false)
+
+		err = utils.CreateDirectory(rootFolder, "content")
 		utils.HandleError(err, false)
 
 		err = utils.CreateDirectory(rootFolder, "logs")

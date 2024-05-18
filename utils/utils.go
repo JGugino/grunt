@@ -14,15 +14,6 @@ type CommandArg struct {
 	Value string
 }
 
-func HandleError(err error, fatal bool) {
-	if err != nil {
-		PrintError(err.Error(), false)
-		if fatal {
-			os.Exit(0)
-		}
-	}
-}
-
 func AddConfigExt(fileName string) string {
 	return fileName + CONFIG_EXT
 }
@@ -64,19 +55,10 @@ func ReplaceArgWithValueInSlice(slice []string, args []CommandArg) []string {
 	replacedSlice := make([]string, 0)
 	for _, s := range slice {
 		for _, a := range args {
-			argStart := strings.Index(s, "{")
-			argEnd := strings.Index(s, "}")
-
-			var extractedArg string
-
-			if argStart != -1 && argEnd != -1 {
-				extractedArg = s[argStart:argEnd] + "}"
-			} else {
-				extractedArg = s
-			}
+			start, stop, extractedArg := ExtractArgFromSyntax(s)
 
 			if extractedArg == "{"+a.Name+"}" {
-				replacedSlice = append(replacedSlice, s[:argStart]+a.Value+s[argEnd+1:])
+				replacedSlice = append(replacedSlice, s[:start]+a.Value+s[stop+1:])
 				continue
 			}
 		}
@@ -86,25 +68,54 @@ func ReplaceArgWithValueInSlice(slice []string, args []CommandArg) []string {
 
 func ReplaceArgWithValueInString(arg string, args []CommandArg) string {
 	for _, a := range args {
-		argStart := strings.Index(arg, "{")
-		argEnd := strings.Index(arg, "}")
-
-		var extractedArg string
-
-		if argStart != -1 && argEnd != -1 {
-			extractedArg = arg[argStart:argEnd] + "}"
-		} else {
-			extractedArg = arg
-		}
+		start, stop, extractedArg := ExtractArgFromSyntax(arg)
 
 		if extractedArg == "{"+a.Name+"}" {
-			return arg[:argStart] + a.Value + arg[argEnd+1:]
+			return arg[:start] + a.Value + arg[stop+1:]
 		}
 	}
 
 	return arg
 }
 
+func ExtractArgFromSyntax(arg string) (start int, stop int, extracted string) {
+	var extractedArg string
+
+	argStart := strings.Index(arg, "{")
+	argEnd := strings.Index(arg, "}")
+
+	if argStart != -1 && argEnd != -1 {
+		extractedArg = arg[argStart:argEnd] + "}"
+	} else {
+		extractedArg = arg
+	}
+
+	return argStart, argEnd, extractedArg
+}
+
+func ExtractPathOrReturnOriginalContent(content string) (hasPath bool, found string) {
+	if i := strings.Index(content, "--path"); i == -1 {
+		return false, content
+	}
+
+	_, _, contentPath := ExtractArgFromSyntax(content)
+
+	fmt.Println(contentPath[1 : len(contentPath)-1])
+
+	return true, contentPath[1 : len(contentPath)-1]
+}
+
+// Handles errors and has the ability to exit the program if fatal
+func HandleError(err error, fatal bool) {
+	if err != nil {
+		PrintError(err.Error(), false)
+		if fatal {
+			os.Exit(0)
+		}
+	}
+}
+
+// Prints an error in black over a red background and logs it to the logs folder under 'errors.log'
 func PrintError(msg string, urgent bool) {
 	if urgent {
 		fmt.Println(color.InBlackOverRed(msg))
@@ -115,15 +126,20 @@ func PrintError(msg string, urgent bool) {
 	fmt.Println(color.InRed(msg))
 	AppendToLogFile("error", " [ERROR] - "+msg)
 }
+
+// Prints program info in blue and logs it to the logs folder under 'general.log'
 func PrintInfo(msg string) {
 	fmt.Println(color.InBlue(msg))
 	AppendToLogFile("general", " [INFO] - "+msg)
 }
+
+// Prints program action in green and logs it to the logs folder under 'general.log'
 func PrintAction(msg string) {
 	fmt.Println(color.InGreen(msg))
 	AppendToLogFile("general", " [ACTION] - "+msg)
 }
 
+// Prints program warning in black on a yellow background and logs it to the logs folder under 'general.log'
 func PrintWarning(msg string) {
 	fmt.Println(color.InBlackOverYellow(msg))
 	AppendToLogFile("general", " [WARNING] - "+msg)

@@ -24,7 +24,7 @@ func ReadWholeFile(filePath string, fileName string) ([]byte, error) {
 	contents, err := os.ReadFile(path.Join(filePath, fileName))
 
 	if err != nil {
-		fmt.Printf("Unable to find config %s in path %s \n", fileName, filePath)
+		fmt.Printf("Unable to find file %s in path %s \n", fileName, filePath)
 		return nil, err
 	}
 
