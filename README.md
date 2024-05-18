@@ -61,7 +61,7 @@ The following example config will create a very basic HTML project with a linked
                         "files": [
                             {
                                 "name": "app.css",
-                                "content": "*, *::before, *::after{\npadding: 0;\n margin: 0;\n box-sizing:border-box;\n}\nbody{\nbackground-color: green;\n}\n"
+                                "content": "--path{app.css}"
                             }
                         ]
                     }
@@ -87,6 +87,7 @@ The following example config will create a very basic HTML project with a linked
 ```
 
 ### Flags
+Adding flags to your config gives you the ability to ulter the execution of the config. As of now you have 4 flags that you can apply which affect the directory/file creation, and command steps.
 ```javascript
     {
         "flags": [
@@ -125,6 +126,22 @@ After you have defined your arguments inside the config you may use it in other 
 
 **NOTE: If you define arguments inside of the config you must define them when executing that config, if you don't grunt will throw a warning and stop further execution**
 
+### Files
+When defining files to be created inside your directories you must define a `"name"` and `"content"` for each file. The files content can either be a plain string written directly inside the config file, but for more complex files you can utilize the `--path{}` modifier to define the name of the file you wish to use. Grunt will look for this file inside the `.grunt/content/{config-id}` directory. The `content` directory will be created on grunts first execution, but the directory for each configs content will need to be created manually.
+```javascript
+    {
+        "files":[
+            {
+                "name": "content.txt",
+                "content": "this is content"
+            },
+            {
+                "name": "index.html",
+                "content": "--path{example.html}"
+            }
+        ]
+    }
+```
 ---
 
 ## Executing a Config

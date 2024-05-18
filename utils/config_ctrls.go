@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 )
 
 const (
@@ -65,6 +66,37 @@ func LoadConfig(path string, configId string) (*ConfigFile, error) {
 	return configFile, err
 }
 
+func DetermineFileContent(config ConfigFile, content string) (string, error) {
+	hasPath, extracted := ExtractPathOrReturnOriginalContent(content)
+
+	if hasPath {
+		splitPath := strings.Split(extracted, string(os.PathSeparator))
+
+		homedir, err := os.UserHomeDir()
+
+		if err != nil {
+			return "", err
+		}
+
+		filePath := path.Join(homedir, ".grunt", "content", config.Id)
+		fileName := splitPath[len(splitPath)-1:][0]
+
+		fileContent, err := ReadWholeFile(filePath, fileName)
+
+		fmt.Println("File Path: ", filePath)
+		fmt.Println("File Name: " + fileName)
+		fmt.Println("Content: " + string(fileContent))
+
+		if err != nil {
+			return "", err
+		}
+
+		return string(fileContent), nil
+	}
+
+	return content, nil
+}
+
 func (config *ConfigFile) DetermineFlags() ActiveFlags {
 	return ActiveFlags{
 		SkipFiles:    StringExistsInSlice(config.Flags, SKIP_FILES_FLAG),
@@ -110,7 +142,16 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 		//Create parent directory files
 		for pf := 0; pf < len(parentDir.Files); pf++ {
 			file := parentDir.Files[pf]
-			err := CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), file.Content)
+
+			var extractedContent string
+
+			extractedContent, err := DetermineFileContent(*config, file.Content)
+
+			if err != nil {
+				return err
+			}
+
+			err = CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
 
 			if err != nil {
 				return err
@@ -124,7 +165,16 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 			//Create sub directory files
 			for sf := 0; sf < len(subDir.Files); sf++ {
 				file := subDir.Files[sf]
-				err := CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), file.Content)
+
+				var extractedContent string
+
+				extractedContent, err := DetermineFileContent(*config, file.Content)
+
+				if err != nil {
+					return err
+				}
+
+				err = CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
 
 				if err != nil {
 					return err
