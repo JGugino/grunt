@@ -24,7 +24,6 @@ func ReadWholeFile(filePath string, fileName string) ([]byte, error) {
 	contents, err := os.ReadFile(path.Join(filePath, fileName))
 
 	if err != nil {
-		fmt.Printf("Unable to find file %s in path %s \n", fileName, filePath)
 		return nil, err
 	}
 
@@ -35,7 +34,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	file, err := os.Create(path.Join(filePath, fileName))
 
 	if err != nil {
-		fmt.Printf("Unable to create the file %s in path %s", fileName, filePath)
+		PrintError(fmt.Sprintf("Unable to create the file %s in path %s", fileName, filePath), false)
 		channel <- err
 		return
 	}
@@ -45,7 +44,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	_, writeErr := file.WriteString(fileContents)
 
 	if writeErr != nil {
-		fmt.Printf("Unable to write to the file %s in path %s", fileName, filePath)
+		PrintError(fmt.Sprintf("Unable to write to the file %s in path %s", fileName, filePath), false)
 		channel <- writeErr
 		return
 	}

@@ -16,11 +16,11 @@ const (
 )
 
 type ConfigFile struct {
-	Id          string      `json:"id"`
-	Args        []string    `json:"args"`
-	Flags       []string    `json:"flags"`
-	Directories []Directory `json:"directories"`
-	Commands    []Command   `json:"commands"`
+	Id          string          `json:"id"`
+	Args        []string        `json:"args"`
+	Flags       []string        `json:"flags"`
+	Directories []Directory     `json:"directories"`
+	Commands    []ConfigCommand `json:"commands"`
 }
 
 type Directory struct {
@@ -39,7 +39,7 @@ type Files struct {
 	Content string `json:"content"`
 }
 
-type Command struct {
+type ConfigCommand struct {
 	Command string   `json:"command"`
 	Args    []string `json:"args"`
 }
@@ -49,6 +49,39 @@ type ActiveFlags struct {
 	SkipDirs     bool
 	SkipCreation bool
 	SkipCommands bool
+}
+
+func CreateInitDirectoriesIfDontExist(homeDir string, rootFolder string, exist bool) error {
+	if !exist {
+		//Create root dir
+		err := CreateDirectory(homeDir, ".grunt")
+
+		if err != nil {
+			return err
+		}
+
+		//create config/content/logs folders
+		err = CreateDirectory(rootFolder, "configs")
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirectory(rootFolder, "content")
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirectory(rootFolder, "logs")
+		if err != nil {
+			return err
+		}
+
+		PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder))
+		os.Exit(0)
+	}
+
+	PrintInfo(fmt.Sprintf(".grunt directory already exists inside your home directory, %s", rootFolder))
+	return nil
 }
 
 func LoadConfig(path string, configId string) (*ConfigFile, error) {
