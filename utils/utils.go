@@ -126,6 +126,17 @@ func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
 // Handles errors and has the ability to exit the program if fatal
 func HandleError(err error, fatal bool) {
 	if err != nil {
+		if err.Error() == "no-create-name" {
+			PrintWarning("You must provide a name for the config")
+			os.Exit(0)
+		} else if err.Error() == "invalid-log-type" {
+			PrintError("Invalid log type (general or error)", false)
+			os.Exit(0)
+		} else if err.Error() == "invalid-log-args" {
+			PrintError("Invalid log args", false)
+			os.Exit(0)
+		}
+
 		PrintError(err.Error(), false)
 		if fatal {
 			os.Exit(0)
