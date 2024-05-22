@@ -1,5 +1,6 @@
 # Grunt
-[![Go Report Card](https://goreportcard.com/badge/github.com/JGugino/grunt)](https://goreportcard.com/report/github.com/JGugino/grunt) &nbsp; &nbsp; &nbsp; ![GitHub Release](https://img.shields.io/github/v/release/JGugino/grunt?display_name=release&link=https%3A%2F%2Fgithub.com%2FJGugino%2Fgrunt%2Freleases%2Ftag%2Fv1.1)
+[![Go Report Card](https://goreportcard.com/badge/github.com/JGugino/grunt)](https://goreportcard.com/report/github.com/JGugino/grunt) &nbsp; &nbsp; &nbsp; ![GitHub Release](https://img.shields.io/github/v/release/JGugino/grunt)
+
 
 
 
