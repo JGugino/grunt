@@ -128,18 +128,18 @@ func HandleError(err error, fatal bool) {
 	if err != nil {
 		if err.Error() == "no-create-name" {
 			PrintWarning("You must provide a name for the config")
-			os.Exit(0)
+			os.Exit(1)
 		} else if err.Error() == "invalid-log-type" {
 			PrintError("Invalid log type (general or error)", false)
-			os.Exit(0)
+			os.Exit(1)
 		} else if err.Error() == "invalid-log-args" {
 			PrintError("Invalid log args", false)
-			os.Exit(0)
+			os.Exit(1)
 		}
 
 		PrintError(err.Error(), false)
 		if fatal {
-			os.Exit(0)
+			os.Exit(1)
 		}
 	}
 }
