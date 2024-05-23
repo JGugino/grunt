@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/TwiN/go-color"
@@ -12,6 +13,11 @@ import (
 type CommandArg struct {
 	Name  string
 	Value string
+}
+
+type CommandReturn struct {
+	Output []byte
+	Err    error
 }
 
 func AddConfigExt(fileName string) string {
@@ -105,12 +111,35 @@ func ExtractPathOrReturnOriginalContent(content string) (hasPath bool, found str
 	return true, contentPath[1 : len(contentPath)-1]
 }
 
+func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
+	cmd := exec.Command(command, args...)
+	output, err := cmd.Output()
+
+	commandReturn := CommandReturn{
+		Output: output,
+		Err:    err,
+	}
+
+	channel <- commandReturn
+}
+
 // Handles errors and has the ability to exit the program if fatal
 func HandleError(err error, fatal bool) {
 	if err != nil {
+		if err.Error() == "no-create-name" {
+			PrintWarning("You must provide a name for the config")
+			os.Exit(1)
+		} else if err.Error() == "invalid-log-type" {
+			PrintError("Invalid log type (general or error)", false)
+			os.Exit(1)
+		} else if err.Error() == "invalid-log-args" {
+			PrintError("Invalid log args", false)
+			os.Exit(1)
+		}
+
 		PrintError(err.Error(), false)
 		if fatal {
-			os.Exit(0)
+			os.Exit(1)
 		}
 	}
 }

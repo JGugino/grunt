@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 )
@@ -17,11 +16,11 @@ const (
 )
 
 type ConfigFile struct {
-	Id          string      `json:"id"`
-	Args        []string    `json:"args"`
-	Flags       []string    `json:"flags"`
-	Directories []Directory `json:"directories"`
-	Commands    []Command   `json:"commands"`
+	Id          string          `json:"id"`
+	Args        []string        `json:"args"`
+	Flags       []string        `json:"flags"`
+	Directories []Directory     `json:"directories"`
+	Commands    []ConfigCommand `json:"commands"`
 }
 
 type Directory struct {
@@ -40,7 +39,7 @@ type Files struct {
 	Content string `json:"content"`
 }
 
-type Command struct {
+type ConfigCommand struct {
 	Command string   `json:"command"`
 	Args    []string `json:"args"`
 }
@@ -50,6 +49,39 @@ type ActiveFlags struct {
 	SkipDirs     bool
 	SkipCreation bool
 	SkipCommands bool
+}
+
+func CreateInitDirectoriesIfDontExist(homeDir string, rootFolder string, exist bool) error {
+	if !exist {
+		//Create root dir
+		err := CreateDirectory(homeDir, ".grunt")
+
+		if err != nil {
+			return err
+		}
+
+		//create config/content/logs folders
+		err = CreateDirectory(rootFolder, "configs")
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirectory(rootFolder, "content")
+		if err != nil {
+			return err
+		}
+
+		err = CreateDirectory(rootFolder, "logs")
+		if err != nil {
+			return err
+		}
+
+		PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder))
+		os.Exit(0)
+	}
+
+	PrintInfo(fmt.Sprintf(".grunt directory already exists inside your home directory, %s", rootFolder))
+	return nil
 }
 
 func LoadConfig(path string, configId string) (*ConfigFile, error) {
@@ -147,7 +179,11 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 				return err
 			}
 
-			err = CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
+			channel := make(chan error)
+
+			go CreateNewFile(path.Join(createPath, parentDir.Name), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent, channel)
+
+			err = <-channel
 
 			if err != nil {
 				return err
@@ -170,7 +206,11 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 					return err
 				}
 
-				err = CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent)
+				channel := make(chan error)
+
+				go CreateNewFile(path.Join(createPath, parentDir.Name, ReplaceArgWithValueInString(subDir.Name, definedArgs)), ReplaceArgWithValueInString(file.Name, definedArgs), extractedContent, channel)
+
+				err = <-channel
 
 				if err != nil {
 					return err
@@ -182,22 +222,28 @@ func (config *ConfigFile) CreateFiles(createPath string, definedArgs []CommandAr
 }
 
 func (config *ConfigFile) ExecuteCommands(executePath string, definedArgs []CommandArg) error {
+	os.Chdir(executePath)
+
 	for c := 0; c < len(config.Commands); c++ {
 		command := config.Commands[c]
 
 		cmdArgs := ReplaceArgWithValueInSlice(command.Args, definedArgs)
 
-		os.Chdir(executePath)
-		cmd := exec.Command(command.Command, cmdArgs...)
-		output, err := cmd.Output()
+		channel := make(chan CommandReturn)
 
-		if err != nil {
+		go ExecuteCommand(channel, command.Command, cmdArgs)
+
+		commandReturn := <-channel
+
+		if commandReturn.Err != nil {
 			PrintError(fmt.Sprintf("Command '%s %s' has failed to execute", command.Command, TurnSliceIntoString(cmdArgs)), false)
-			return err
+			return commandReturn.Err
 		}
 
 		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(cmdArgs)))
-		PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", output))
+		if len(commandReturn.Output) > 0 {
+			PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", commandReturn.Output))
+		}
 	}
 	return nil
 }

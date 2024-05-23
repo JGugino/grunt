@@ -1,8 +1,23 @@
 # Grunt
+[![Go Report Card](https://goreportcard.com/badge/github.com/JGugino/grunt)](https://goreportcard.com/report/github.com/JGugino/grunt) &nbsp; &nbsp; &nbsp; [![GitHub Release](https://img.shields.io/github/v/release/JGugino/grunt?sort=date&display_name=release&style=plastic)](https://github.com/JGugino/grunt/releases/tag/v1.2)
+
+
+
 
 Grunt is a project templating utility which uses a JSON file to define the structure of the project
 
-## Installation
+## Table of Contents
+- [Building & Installation](#building-and-installation)
+- [Example Project Config](#example-project-config)
+    - [Flags](#flags)
+    - [Arguments](#flags)
+    - [Files](#flags)
+- [Creating a Config](#creating-a-config)
+- [Executing a Config](#executing-a-config)
+- [Accessing Logs](#accessing-logs)
+---
+
+## Building and Installation
 
 ### Building from source
 To build grunt from its source first start by downloading the source files included in your desired release, and then simply run ONE of the following commands depending on your operating system.
@@ -39,7 +54,7 @@ To add grunt to your path on linux it's as simple as copying the binary into eit
 sudo cp ~/grunt /usr/locals/bin
 ```
 #### Testing your installation 
-After you've copied grunt to your `bin` folder (or added the application path to your enviroment variables) you can test your installation by run the command `grunt`. If everything is correct this will create the `.grunt` directory inside the users home directory. Along with the `.grunt` directory, the config and logs directories are also created. The configs folder is where grunt will look to try and load a config, and the logs folder is where the errors and general logs get created.
+After you've copied grunt to your `bin` folder (or added the application path to your enviroment variables) you can test your installation by running the command `grunt init`. If everything is setup correctly this will create the `.grunt` directory inside the your home directory. Along with the `.grunt` directory, the config, content, and logs directories are also created. The configs folder is where grunt will look to try and load a config, the content folder is where grunt will look for content that is included inside of a config (more info on this in the [Files](#files) section), and finally the logs folder is where the errors and general logs get created.
 
 ---
 
@@ -142,7 +157,9 @@ When defining files to be created inside your directories you must define a `"na
         ]
     }
 ```
----
+
+## Creating a Config
+When you want to create a new config file you dont have to type out the same bolierplate everytime. You can simply run the `grunt create {name}` command with the name of the config you want and grunt will create the config file and content folder for you.
 
 ## Executing a Config
 When executing a config using grunt you refer to it by the `"id"` specified inside the config file. Grunt looks for the config file inside the `.grunt/configs` directory within the users home directory, and it will read the first file with a name that matches the id of the specified config.
@@ -168,3 +185,6 @@ When executing a config that contains arguments you must inculde them when execu
 grunt example name="example-project"
 ```
 *this snippet will execute the 'example' config with the "name" argument inside the current working directory.*
+
+## Accessing Logs
+Whenever grunt runs it will logs it's outputs to `general.log`, and any errors that may occur will be logged to `errors.log`. You can access these files either directly by going to the `.grunt/logs` folder inside of your home directory, or you can use the `grunt logs {type}` command and specify the type of log you want to view. So you would run the `grunt logs general` to print out the entire contents of the general log, and `grunt logs error` to view the errors logs.
