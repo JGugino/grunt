@@ -17,14 +17,15 @@ const (
 
 func main() {
 	if len(os.Args) <= 1 {
-		utils.PrintError("Invalid usage", false)
-		utils.PrintError("grunt {identifier} {args}", false)
-		utils.PrintError("* If the path is not defined, the current working directory is used.", true)
-		os.Exit(0)
+		utils.PrintError("Invalid usage", false, false)
+		utils.PrintError("grunt {identifier} {args}", false, false)
+		utils.PrintError("* If the path is not defined, the current working directory is used.", true, false)
+		os.Exit(1)
 	}
 
 	//Gets the command identifier
 	cmdIdentifier := os.Args[1]
+	cmdArgs := os.Args[2:]
 
 	//Determines the users home dir
 	homeDir, err := os.UserHomeDir()
@@ -57,14 +58,14 @@ func main() {
 	case I_CREATE:
 		//Run the create command to create a template config file and content folder with the specified name
 		createCmd := cmd.CreateCmd{}
-		err := createCmd.Execute(os.Args[2:], configsFolder, contentFolder)
+		err := createCmd.Execute(cmdArgs, configsFolder, contentFolder)
 
 		utils.HandleError(err, true)
 
 	case I_LOGS:
 		//Run the logs command to print out either the general or error logs
 		logsCmd := cmd.LogsCmd{}
-		err := logsCmd.Execute(logsFolder, os.Args[2:])
+		err := logsCmd.Execute(logsFolder, cmdArgs)
 
 		utils.HandleError(err, true)
 

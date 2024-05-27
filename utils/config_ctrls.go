@@ -76,11 +76,11 @@ func CreateInitDirectoriesIfDontExist(homeDir string, rootFolder string, exist b
 			return err
 		}
 
-		PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder))
+		PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder), true)
 		os.Exit(0)
 	}
 
-	PrintInfo(fmt.Sprintf(".grunt directory already exists inside your home directory, %s", rootFolder))
+	PrintInfo(fmt.Sprintf(".grunt directory already exists inside your home directory, %s", rootFolder), true)
 	return nil
 }
 
@@ -125,8 +125,8 @@ func DetermineFileContent(config ConfigFile, content string) (string, error) {
 	return content, nil
 }
 
-func (config *ConfigFile) DetermineFlags() ActiveFlags {
-	return ActiveFlags{
+func (config *ConfigFile) DetermineFlags() *ActiveFlags {
+	return &ActiveFlags{
 		SkipFiles:    StringExistsInSlice(config.Flags, SKIP_FILES_FLAG),
 		SkipDirs:     StringExistsInSlice(config.Flags, SKIP_DIRS_FLAG),
 		SkipCreation: StringExistsInSlice(config.Flags, SKIP_CREATION_FLAG),
@@ -236,13 +236,13 @@ func (config *ConfigFile) ExecuteCommands(executePath string, definedArgs []Comm
 		commandReturn := <-channel
 
 		if commandReturn.Err != nil {
-			PrintError(fmt.Sprintf("Command '%s %s' has failed to execute", command.Command, TurnSliceIntoString(cmdArgs)), false)
+			PrintError(fmt.Sprintf("Command '%s %s' has failed to execute", command.Command, TurnSliceIntoString(cmdArgs)), false, true)
 			return commandReturn.Err
 		}
 
-		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(cmdArgs)))
+		PrintAction(fmt.Sprintf("Command '%s %s' has been executed", command.Command, TurnSliceIntoString(cmdArgs)), true)
 		if len(commandReturn.Output) > 0 {
-			PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", commandReturn.Output))
+			PrintAction(fmt.Sprintf("\n###OUTPUT###\n%s", commandReturn.Output), true)
 		}
 	}
 	return nil

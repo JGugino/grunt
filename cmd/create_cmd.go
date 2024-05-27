@@ -20,7 +20,7 @@ func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder 
 	configName := utils.AddConfigExt(args[0])
 	dirName := args[0]
 
-	utils.PrintInfoAndLog(fmt.Sprintf("Starting config creation for '%s'", configName))
+	utils.PrintInfo(fmt.Sprintf("Starting config creation for '%s'", configName), true)
 
 	channel := make(chan error)
 
@@ -63,7 +63,7 @@ func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder 
 		return err
 	}
 
-	utils.PrintActionAndLog(fmt.Sprintf("Config file '%s' has been created", configName))
+	utils.PrintAction(fmt.Sprintf("Config file '%s' has been created", configName), true)
 
 	//Create the new directory inside then content folder with the specified name
 	err = utils.CreateDirectory(contentFolder, dirName)
@@ -72,9 +72,9 @@ func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder 
 		return err
 	}
 
-	utils.PrintActionAndLog(fmt.Sprintf("Content folder '%s' has been created", dirName))
+	utils.PrintAction(fmt.Sprintf("Content folder '%s' has been created", dirName), true)
 
-	utils.PrintInfoAndLog(fmt.Sprintf("Config creation for '%s' has completed", configName))
+	utils.PrintInfo(fmt.Sprintf("Config creation for '%s' has completed", configName), true)
 
 	return nil
 }

@@ -9,6 +9,27 @@ import (
 	"github.com/TwiN/go-color"
 )
 
+// Handles errors and has the ability to exit the program if fatal
+func HandleError(err error, fatal bool) {
+	if err != nil {
+		if err.Error() == "no-create-name" {
+			PrintWarning("You must provide a name for the config", true)
+			os.Exit(1)
+		} else if err.Error() == "invalid-log-type" {
+			PrintError("Invalid log type (general or error)", false, true)
+			os.Exit(1)
+		} else if err.Error() == "invalid-log-args" {
+			PrintError("Invalid log args", false, true)
+			os.Exit(1)
+		}
+
+		PrintError(err.Error(), false, true)
+		if fatal {
+			os.Exit(1)
+		}
+	}
+}
+
 func AppendToLogFile(logType string, logContent string) error {
 	homeDir, err := os.UserHomeDir()
 
@@ -45,10 +66,12 @@ func AppendToLogFile(logType string, logContent string) error {
 }
 
 // Prints an error in black over a red background and logs it to the logs folder under 'errors.log'
-func PrintErrorAndLog(msg string, urgent bool) {
+func PrintError(msg string, urgent bool, log bool) {
 	if urgent {
 		fmt.Println(color.InBlackOverRed(msg))
-		AppendToLogFile("error", " [ERROR] - "+msg)
+		if log {
+			AppendToLogFile("error", " [ERROR] - "+msg)
+		}
 		return
 	}
 
@@ -57,19 +80,25 @@ func PrintErrorAndLog(msg string, urgent bool) {
 }
 
 // Prints program info in blue and logs it to the logs folder under 'general.log'
-func PrintInfoAndLog(msg string) {
+func PrintInfo(msg string, log bool) {
 	fmt.Println(color.InBlue(msg))
-	AppendToLogFile("general", " [INFO] - "+msg)
+	if log {
+		AppendToLogFile("general", " [INFO] - "+msg)
+	}
 }
 
 // Prints program action in green and logs it to the logs folder under 'general.log'
-func PrintActionAndLog(msg string) {
+func PrintAction(msg string, log bool) {
 	fmt.Println(color.InGreen(msg))
-	AppendToLogFile("general", " [ACTION] - "+msg)
+	if log {
+		AppendToLogFile("general", " [ACTION] - "+msg)
+	}
 }
 
 // Prints program warning in black on a yellow background and logs it to the logs folder under 'general.log'
-func PrintWarningAndLog(msg string) {
+func PrintWarning(msg string, log bool) {
 	fmt.Println(color.InBlackOverYellow(msg))
-	AppendToLogFile("general", " [WARNING] - "+msg)
+	if log {
+		AppendToLogFile("general", " [WARNING] - "+msg)
+	}
 }

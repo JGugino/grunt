@@ -3,11 +3,8 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/TwiN/go-color"
 )
 
 type CommandArg struct {
@@ -121,50 +118,4 @@ func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
 	}
 
 	channel <- commandReturn
-}
-
-// Handles errors and has the ability to exit the program if fatal
-func HandleError(err error, fatal bool) {
-	if err != nil {
-		if err.Error() == "no-create-name" {
-			PrintWarningAndLog("You must provide a name for the config")
-			os.Exit(1)
-		} else if err.Error() == "invalid-log-type" {
-			PrintErrorAndLog("Invalid log type (general or error)", false)
-			os.Exit(1)
-		} else if err.Error() == "invalid-log-args" {
-			PrintErrorAndLog("Invalid log args", false)
-			os.Exit(1)
-		}
-
-		PrintErrorAndLog(err.Error(), false)
-		if fatal {
-			os.Exit(1)
-		}
-	}
-}
-
-// Prints an error in black over a red background
-func PrintError(msg string, urgent bool) {
-	if urgent {
-		fmt.Println(color.InBlackOverRed(msg))
-		return
-	}
-
-	fmt.Println(color.InRed(msg))
-}
-
-// Prints program info in blue
-func PrintInfo(msg string) {
-	fmt.Println(color.InBlue(msg))
-}
-
-// Prints program action in green
-func PrintAction(msg string) {
-	fmt.Println(color.InGreen(msg))
-}
-
-// Prints program warning in black on a yellow background
-func PrintWarning(msg string) {
-	fmt.Println(color.InBlackOverYellow(msg))
 }

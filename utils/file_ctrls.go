@@ -34,7 +34,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	file, err := os.Create(path.Join(filePath, fileName))
 
 	if err != nil {
-		PrintError(fmt.Sprintf("Unable to create the file %s in path %s", fileName, filePath), false)
+		PrintError(fmt.Sprintf("Unable to create the file %s in path %s", fileName, filePath), false, true)
 		channel <- err
 		return
 	}
@@ -44,7 +44,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	_, writeErr := file.WriteString(fileContents)
 
 	if writeErr != nil {
-		PrintError(fmt.Sprintf("Unable to write to the file %s in path %s", fileName, filePath), false)
+		PrintError(fmt.Sprintf("Unable to write to the file %s in path %s", fileName, filePath), false, true)
 		channel <- writeErr
 		return
 	}

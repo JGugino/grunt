@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/JGugino/grunt/utils"
-	"github.com/TwiN/go-color"
 )
 
 type LogsCmd struct {
@@ -29,7 +28,7 @@ func (cmd *LogsCmd) Execute(logsFolder string, args []string) error {
 		splitContent := strings.Split(string(logContent), "\n")
 
 		for i, v := range splitContent {
-			utils.PrintInfo(fmt.Sprintf("[%d] %s\n", i+1, v))
+			utils.PrintInfo(fmt.Sprintf("[%d] %s\n", i+1, v), false)
 
 		}
 
@@ -44,7 +43,7 @@ func (cmd *LogsCmd) Execute(logsFolder string, args []string) error {
 		splitContent := strings.Split(string(logContent), "\n")
 
 		for i, v := range splitContent {
-			fmt.Printf(color.InRed("[%d] %s\n"), i+1, v)
+			utils.PrintError(fmt.Sprintf("[%d] %s\n", i+1, v), false, false)
 		}
 		return nil
 	}
