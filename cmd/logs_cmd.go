@@ -29,7 +29,8 @@ func (cmd *LogsCmd) Execute(logsFolder string, args []string) error {
 		splitContent := strings.Split(string(logContent), "\n")
 
 		for i, v := range splitContent {
-			fmt.Printf(color.InBlue("[%d] %s\n"), i+1, v)
+			utils.PrintInfo(fmt.Sprintf("[%d] %s\n", i+1, v))
+
 		}
 
 		return nil

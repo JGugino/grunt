@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	I_INIT   = "init"
-	I_CREATE = "create"
-	I_LOGS   = "logs"
+	I_INIT    = "init"
+	I_CREATE  = "create"
+	I_LOGS    = "logs"
+	I_CONFIGS = "config"
 )
 
 func main() {

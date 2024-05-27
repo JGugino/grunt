@@ -127,49 +127,44 @@ func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
 func HandleError(err error, fatal bool) {
 	if err != nil {
 		if err.Error() == "no-create-name" {
-			PrintWarning("You must provide a name for the config")
+			PrintWarningAndLog("You must provide a name for the config")
 			os.Exit(1)
 		} else if err.Error() == "invalid-log-type" {
-			PrintError("Invalid log type (general or error)", false)
+			PrintErrorAndLog("Invalid log type (general or error)", false)
 			os.Exit(1)
 		} else if err.Error() == "invalid-log-args" {
-			PrintError("Invalid log args", false)
+			PrintErrorAndLog("Invalid log args", false)
 			os.Exit(1)
 		}
 
-		PrintError(err.Error(), false)
+		PrintErrorAndLog(err.Error(), false)
 		if fatal {
 			os.Exit(1)
 		}
 	}
 }
 
-// Prints an error in black over a red background and logs it to the logs folder under 'errors.log'
+// Prints an error in black over a red background
 func PrintError(msg string, urgent bool) {
 	if urgent {
 		fmt.Println(color.InBlackOverRed(msg))
-		AppendToLogFile("error", " [ERROR] - "+msg)
 		return
 	}
 
 	fmt.Println(color.InRed(msg))
-	AppendToLogFile("error", " [ERROR] - "+msg)
 }
 
-// Prints program info in blue and logs it to the logs folder under 'general.log'
+// Prints program info in blue
 func PrintInfo(msg string) {
 	fmt.Println(color.InBlue(msg))
-	AppendToLogFile("general", " [INFO] - "+msg)
 }
 
-// Prints program action in green and logs it to the logs folder under 'general.log'
+// Prints program action in green
 func PrintAction(msg string) {
 	fmt.Println(color.InGreen(msg))
-	AppendToLogFile("general", " [ACTION] - "+msg)
 }
 
-// Prints program warning in black on a yellow background and logs it to the logs folder under 'general.log'
+// Prints program warning in black on a yellow background
 func PrintWarning(msg string) {
 	fmt.Println(color.InBlackOverYellow(msg))
-	AppendToLogFile("general", " [WARNING] - "+msg)
 }
