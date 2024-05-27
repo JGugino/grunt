@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ![grunt logo](logo.webp)
 <br/>
 <br/>
