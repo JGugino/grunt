@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 ![grunt logo](logo.webp)
 <br/>
 <br/>
 [![Go Report Card](https://goreportcard.com/badge/github.com/JGugino/grunt)](https://goreportcard.com/report/github.com/JGugino/grunt) &nbsp; &nbsp; &nbsp; [![GitHub Release](https://img.shields.io/github/v/release/JGugino/grunt?sort=date&display_name=release&style=plastic)](https://github.com/JGugino/grunt/releases/tag/v1.1)
+=======
+# Grunt
+[![Go Report Card](https://goreportcard.com/badge/github.com/JGugino/grunt)](https://goreportcard.com/report/github.com/JGugino/grunt) &nbsp; &nbsp; &nbsp; [![GitHub Release](https://img.shields.io/github/v/release/JGugino/grunt?sort=date&display_name=release&style=plastic)](https://github.com/JGugino/grunt/releases/tag/v1.2)
+>>>>>>> b8347778ba784d4285486d5be2e0738db57ac82b
 
 
 
