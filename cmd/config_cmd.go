@@ -19,11 +19,11 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 	config, err := utils.LoadConfig(configsFolder, cmdIdentifier)
 
 	if err != nil {
-		utils.PrintError(fmt.Sprintf("Unable to find config '%s' inside of %s", cmdIdentifier, configsFolder), false)
+		utils.PrintError(fmt.Sprintf("Unable to find config '%s' inside of %s", cmdIdentifier, configsFolder), false, true)
 		os.Exit(0)
 	}
 
-	utils.PrintInfo(fmt.Sprintf("Config '%s' has been loaded", cmdIdentifier))
+	utils.PrintInfo(fmt.Sprintf("Config '%s' has been loaded", cmdIdentifier), true)
 
 	//execute config inside current working directory if a path isn't defined
 	createPath, err := utils.GrabArgFromSlice(os.Args, "-p")
@@ -45,7 +45,7 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 
 		//If it is not found it will display a warning in the terminal and log to the general log file
 		if err != nil {
-			utils.PrintWarning(fmt.Sprintf("Defined arg '%s' is unused", arg))
+			utils.PrintWarning(fmt.Sprintf("Defined arg '%s' is unused", arg), true)
 			return nil
 		}
 
@@ -53,7 +53,7 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 		commandArgs = append(commandArgs, cmd)
 	}
 
-	utils.PrintInfo(fmt.Sprintf("Starting grunt in '%s'", createPath.Value))
+	utils.PrintInfo(fmt.Sprintf("Starting grunt in '%s'", createPath.Value), true)
 
 	if !flags.SkipCreation {
 
@@ -64,9 +64,9 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 
 			utils.HandleError(err, false)
 
-			utils.PrintAction("Directories have been created")
+			utils.PrintAction("Directories have been created", true)
 		} else {
-			utils.PrintInfo("## Skipping directory creation ##")
+			utils.PrintInfo("## Skipping directory creation ##", true)
 		}
 
 		//Check if there is a flag to skip file creation
@@ -76,12 +76,12 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 
 			utils.HandleError(err, false)
 
-			utils.PrintAction("Files have been created")
+			utils.PrintAction("Files have been created", true)
 		} else {
-			utils.PrintInfo("## Skipping file creation ##")
+			utils.PrintInfo("## Skipping file creation ##", true)
 		}
 	} else {
-		utils.PrintInfo("## Skipping directory & file creation ##")
+		utils.PrintInfo("## Skipping directory & file creation ##", true)
 	}
 
 	//Checks if there is a flag to skip command execution
@@ -90,14 +90,14 @@ func (cmd *ConfigCmd) Execute(cmdIdentifier string, configsFolder string, workin
 
 		utils.HandleError(err, false)
 
-		utils.PrintAction("All commands have been executed")
+		utils.PrintAction("All commands have been executed", true)
 	} else {
-		utils.PrintInfo("## Skipping command execution ##")
+		utils.PrintInfo("## Skipping command execution ##", true)
 	}
 
 	timeTook := time.Since(startingTime)
 
-	utils.PrintInfo(fmt.Sprintf("Config '%s' execution has completed: %s", cmdIdentifier, timeTook.String()))
+	utils.PrintInfo(fmt.Sprintf("Config '%s' execution has completed: %s", cmdIdentifier, timeTook.String()), true)
 
 	return nil
 }

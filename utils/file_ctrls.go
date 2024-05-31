@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path"
-	"time"
 )
 
 const (
@@ -12,6 +11,7 @@ const (
 	CONFIG_EXT      = ".json"
 )
 
+// Returns true if the path exists and false if it doesnt
 func PathExists(path string) bool {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return false
@@ -34,7 +34,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	file, err := os.Create(path.Join(filePath, fileName))
 
 	if err != nil {
-		PrintError(fmt.Sprintf("Unable to create the file %s in path %s", fileName, filePath), false)
+		PrintError(fmt.Sprintf("Unable to create the file %s in path %s", fileName, filePath), false, true)
 		channel <- err
 		return
 	}
@@ -44,7 +44,7 @@ func CreateNewFile(filePath string, fileName string, fileContents string, channe
 	_, writeErr := file.WriteString(fileContents)
 
 	if writeErr != nil {
-		PrintError(fmt.Sprintf("Unable to write to the file %s in path %s", fileName, filePath), false)
+		PrintError(fmt.Sprintf("Unable to write to the file %s in path %s", fileName, filePath), false, true)
 		channel <- writeErr
 		return
 	}
@@ -58,37 +58,18 @@ func CreateDirectory(dirPath string, dirName string) error {
 	return err
 }
 
-func AppendToLogFile(logType string, logContent string) error {
-	homeDir, err := os.UserHomeDir()
+func GetFilesInDirectory(dirPath string) ([]string, error) {
+	files, err := os.ReadDir(dirPath)
+
+	names := make([]string, 0)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	errorLogPath := path.Join(homeDir, ".grunt", "logs", "errors.log")
-	generalLogPath := path.Join(homeDir, ".grunt", "logs", "general.log")
-
-	var selectedLogPath string
-
-	if logType == "error" {
-		selectedLogPath = errorLogPath
-	} else if logType == "general" {
-		selectedLogPath = generalLogPath
+	for _, v := range files {
+		names = append(names, v.Name())
 	}
 
-	log, err := os.OpenFile(selectedLogPath,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-
-	defer log.Close()
-
-	timestampedContent := time.Now().Format("Mon Jan _2 15:04:05 2006") + " - " + logContent + "\n"
-
-	if _, err := log.WriteString(timestampedContent); err != nil {
-		return err
-	}
-
-	return nil
+	return names, nil
 }
