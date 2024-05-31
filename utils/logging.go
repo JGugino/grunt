@@ -16,7 +16,7 @@ func HandleError(err error, fatal bool) {
 			PrintWarning("You must provide a name for the config", true)
 			os.Exit(1)
 		} else if err.Error() == "invalid-log-type" {
-			PrintError("Invalid log type (general or error)", false, true)
+			PrintError("Invalid log type (general, error, or configs)", false, true)
 			os.Exit(1)
 		} else if err.Error() == "invalid-log-args" {
 			PrintError("Invalid log args", false, true)

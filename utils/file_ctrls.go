@@ -57,3 +57,19 @@ func CreateDirectory(dirPath string, dirName string) error {
 
 	return err
 }
+
+func GetFilesInDirectory(dirPath string) ([]string, error) {
+	files, err := os.ReadDir(dirPath)
+
+	names := make([]string, 0)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, v := range files {
+		names = append(names, v.Name())
+	}
+
+	return names, nil
+}

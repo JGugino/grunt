@@ -11,7 +11,7 @@ import (
 const (
 	I_INIT    = "init"
 	I_CREATE  = "create"
-	I_LOGS    = "logs"
+	I_LOGS    = "log"
 	I_CONFIGS = "config"
 )
 
@@ -32,6 +32,13 @@ func main() {
 
 	utils.HandleError(err, true)
 
+	//check for .grunt folder and create if it doesn't exist
+	rootDirExist := utils.PathExists(path.Join(homeDir, ".grunt"))
+
+	if !rootDirExist {
+		utils.PrintError("grunt hasn't been initialized, please run `grunt init`", false, false)
+	}
+
 	//Determines the users current working directory
 	workingDir, err := os.Getwd()
 
@@ -42,11 +49,6 @@ func main() {
 	configsFolder := path.Join(rootFolder, "configs")
 	logsFolder := path.Join(rootFolder, "logs")
 	contentFolder := path.Join(rootFolder, "content")
-
-	//check for .grunt folder and create if it doesn't exist
-	rootDirExist := utils.PathExists(rootFolder)
-
-	utils.HandleError(err, true)
 
 	switch cmdIdentifier {
 	case I_INIT:
@@ -63,9 +65,9 @@ func main() {
 		utils.HandleError(err, true)
 
 	case I_LOGS:
-		//Run the logs command to print out either the general or error logs
+		//Run the logs command to print out the general or error logs, or the available configs
 		logsCmd := cmd.LogsCmd{}
-		err := logsCmd.Execute(logsFolder, cmdArgs)
+		err := logsCmd.Execute(configsFolder, logsFolder, contentFolder, cmdArgs)
 
 		utils.HandleError(err, true)
 

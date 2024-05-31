@@ -6,5 +6,11 @@ type InitCmd struct {
 }
 
 func (cmd *InitCmd) Execute(homeDir string, rootFolder string, rootDirExist bool) error {
-	return utils.CreateInitDirectoriesIfDontExist(homeDir, rootFolder, rootDirExist)
+	err := utils.CreateInitDirectoriesIfDontExist(homeDir, rootFolder, rootDirExist)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

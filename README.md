@@ -187,4 +187,4 @@ grunt example name="example-project"
 *this snippet will execute the 'example' config with the "name" argument inside the current working directory.*
 
 ## Accessing Logs
-Whenever grunt runs it will logs it's outputs to `general.log`, and any errors that may occur will be logged to `errors.log`. You can access these files either directly by going to the `.grunt/logs` folder inside of your home directory, or you can use the `grunt logs {type}` command and specify the type of log you want to view. So you would run the `grunt logs general` to print out the entire contents of the general log, and `grunt logs error` to view the errors logs.
+Whenever grunt runs it will logs it's outputs to `general.log`, and any errors that may occur will be logged to `errors.log`. You can access these files either directly by going to the `.grunt/logs` folder inside of your home directory, or you can use the `grunt log {type}` command and specify the type of log you want to view. So you would run the `grunt log general` to print out the entire contents of the general log, and `grunt log error` to view the errors logs.
