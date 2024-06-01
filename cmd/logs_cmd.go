@@ -19,6 +19,7 @@ func (cmd *LogsCmd) Execute(configsFolder string, logsFolder string, contentFold
 
 	logType := args[0]
 
+	//Logs the general log to the terminal
 	if logType == "general" {
 		logContent, err := utils.ReadWholeFile(logsFolder, "general.log")
 

@@ -76,7 +76,10 @@ func PrintError(msg string, urgent bool, log bool) {
 	}
 
 	fmt.Println(color.InRed(msg))
-	AppendToLogFile("error", " [ERROR] - "+msg)
+
+	if log {
+		AppendToLogFile("error", " [ERROR] - "+msg)
+	}
 }
 
 // Prints program info in blue and logs it to the logs folder under 'general.log'

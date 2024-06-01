@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
 	"fmt"
-	"os"
 )
 
 func CreateInitDirectoriesIfDontExist(homeDir string, rootFolder string, exist bool) error {
@@ -31,9 +31,32 @@ func CreateInitDirectoriesIfDontExist(homeDir string, rootFolder string, exist b
 		}
 
 		PrintInfo(fmt.Sprintf("Created '.grunt' directory inside your home directory, %s", rootFolder), true)
-		os.Exit(0)
+		return nil
 	}
 
 	PrintInfo(fmt.Sprintf(".grunt directory already exists inside your home directory, %s", rootFolder), true)
+	return nil
+}
+
+func CreateGruntSettings(version string, rootFolder string, configsFolder string, contentFolder string, logsFolder string) error {
+	//Creates a new grunt settings file in the root of the .grunt directory
+	newSettings := CreateNewSettings(version, rootFolder, configsFolder, contentFolder, logsFolder)
+
+	settingsContent, err := json.Marshal(newSettings)
+
+	if err != nil {
+		return err
+	}
+
+	var channel chan error
+
+	go CreateNewFile(rootFolder, "grunt.json", string(settingsContent), channel)
+
+	err = <-channel
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
