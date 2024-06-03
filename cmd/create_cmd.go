@@ -8,17 +8,20 @@ import (
 )
 
 type CreateCmd struct {
+	ConfigFolder  string
+	ContentFolder string
+	Args          []string
 }
 
-func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder string) error {
+func (cmd *CreateCmd) Start() error {
 	//If there is no name return an error
-	if len(args) <= 0 {
+	if len(cmd.Args) <= 0 {
 		return errors.New("no-create-name")
 	}
 
 	//Create a variable for the config and content directory name
-	configName := utils.AddConfigExt(args[0])
-	dirName := args[0]
+	configName := utils.AddConfigExt(cmd.Args[0])
+	dirName := cmd.Args[0]
 
 	utils.PrintInfo(fmt.Sprintf("Starting config creation for '%s'", configName), true)
 
@@ -55,7 +58,7 @@ func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder 
 	`
 
 	//Create the new config file inside the config folder with the specified name
-	go utils.CreateNewFile(configFolder, configName, fmt.Sprintf(configContent, dirName), channel)
+	go utils.CreateNewFile(cmd.ConfigFolder, configName, fmt.Sprintf(configContent, dirName), channel)
 
 	err := <-channel
 
@@ -66,7 +69,7 @@ func (cmd *CreateCmd) Execute(args []string, configFolder string, contentFolder 
 	utils.PrintAction(fmt.Sprintf("Config file '%s' has been created", configName), true)
 
 	//Create the new directory inside then content folder with the specified name
-	err = utils.CreateDirectory(contentFolder, dirName)
+	err = utils.CreateDirectory(cmd.ContentFolder, dirName)
 
 	if err != nil {
 		return err

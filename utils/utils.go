@@ -109,8 +109,7 @@ func ExtractPathOrReturnOriginalContent(content string) (hasPath bool, found str
 }
 
 func ExecuteCommand(channel chan CommandReturn, command string, args []string) {
-	cmd := exec.Command(command, args...)
-	output, err := cmd.Output()
+	output, err := exec.Command(command, args...).CombinedOutput()
 
 	commandReturn := CommandReturn{
 		Output: output,

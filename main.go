@@ -48,20 +48,47 @@ func main() {
 
 	utils.HandleError(err, true)
 
-	var gruntSettings *utils.Settings
+	//Loads the grunt settings from the 'grunt.json' file located inside the root .grunt folder
+	gruntSettings, err := utils.LoadGruntSettings(homeDir)
 
-	if cmdIdentifier != I_INIT {
-		//Loads the grunt settings from the 'grunt.json' file located inside the root .grunt folder
-		gruntSettings, err = utils.LoadGruntSettings(homeDir)
+	utils.HandleError(err, true)
 
-		utils.HandleError(err, true)
+	//Init Command
+	initCmd := cmd.InitCmd{
+		HomeDir:      homeDir,
+		RootDirExist: rootDirExist,
+		Version:      VERSION,
 	}
+
+	//Create Command
+	createCmd := cmd.CreateCmd{
+		ConfigFolder:  gruntSettings.Configs,
+		ContentFolder: gruntSettings.Content,
+		Args:          cmdArgs,
+	}
+
+	cmdHandler := utils.CreateNewCommandHandler(cmdIdentifier, cmdArgs, map[string]utils.Command{
+		I_INIT: {
+			Identifier: I_INIT,
+			Flags:      []string{},
+			Execute:    &initCmd,
+		},
+		I_CREATE: {
+			Identifier: I_CREATE,
+			Flags:      []string{"name"},
+			Execute:    &createCmd,
+		},
+	})
+
+	err = cmdHandler.ExecuteCommand()
+
+	utils.HandleError(err, true)
 
 	switch cmdIdentifier {
 	case I_INIT:
 		//Run the init command to create the root grunt folders
-		initCmd := cmd.InitCmd{}
-		err := initCmd.Execute(homeDir, rootDirExist, VERSION)
+
+		err := initCmd.Start()
 
 		utils.HandleError(err, true)
 	case I_CREATE:
